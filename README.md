@@ -9,7 +9,7 @@ One web app (`www/index.html`) is packaged two ways:
 | Android | [Capacitor](https://capacitorjs.com) | `Resizer-x.y.z-android.apk` |
 | Windows | [Electron](https://www.electronjs.org) + electron-builder | `Resizer-x.y.z-win-x64.zip` |
 
-Download both from the [Releases page](../../releases).
+Download both from the [Releases page](https://github.com/ylljonkr/resizer/releases).
 
 ## Install on Android
 
@@ -53,6 +53,9 @@ git push origin v1.0.1
 ```
 
 After ~10 minutes the APK and the zip appear on the Releases page. Use a higher number each time.
+
+**Test build without a release:** go to the **Actions** tab > **Release** > **Run workflow**.
+When it finishes, the APK and zip are under **Artifacts** at the bottom of that run's page.
 
 ## Develop locally
 

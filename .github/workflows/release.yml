@@ -5,6 +5,7 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:   # adds a "Run workflow" button in the Actions tab for test builds (no Release made)
 
 permissions:
   contents: write   # needed to create the Release
@@ -28,7 +29,11 @@ jobs:
       - name: Work out version from tag
         id: ver
         run: |
-          V="${GITHUB_REF_NAME#v}"                      # v1.2.3 -> 1.2.3
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            V="${GITHUB_REF_NAME#v}"                    # v1.2.3 -> 1.2.3
+          else
+            V="0.0.0-test"                              # manual test build
+          fi
           IFS=. read -r MA MI PA <<< "${V%%-*}"
           CODE=$(( ${MA:-0} * 10000 + ${MI:-0} * 100 + ${PA:-0} ))   # 1.2.3 -> 10203
           echo "name=$V" >> "$GITHUB_OUTPUT"
@@ -67,7 +72,9 @@ jobs:
 
       - name: Build Windows zip
         shell: bash
-        run: npx electron-builder --win zip --x64 --publish never -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.0-test"; fi
+          npx electron-builder --win zip --x64 --publish never -c.extraMetadata.version="$V"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -76,6 +83,7 @@ jobs:
 
   release:
     needs: [android, windows]
+    if: startsWith(github.ref, 'refs/tags/v')   # only tags make a Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
