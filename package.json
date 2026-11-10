@@ -15,9 +15,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
-    "@capacitor/core": "^8.0.0",
-    "@capacitor/filesystem": "^8.0.0",
-    "@capacitor/share": "^8.0.0"
+    "@capacitor/core": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
@@ -28,11 +26,26 @@
   "build": {
     "appId": "com.ylljonkr.resizer",
     "productName": "Resizer",
-    "directories": { "output": "dist" },
-    "files": ["electron/**", "www/**", "resources/icon.png", "package.json", "!node_modules/**"],
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**",
+      "www/**",
+      "resources/icon.png",
+      "package.json",
+      "!node_modules/**"
+    ],
     "win": {
       "icon": "resources/icon.png",
-      "target": [{ "target": "zip", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "artifactName": "Resizer-${version}-win-x64.${ext}"
     }
   }

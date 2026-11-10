@@ -22,8 +22,9 @@ Download both from the [Releases page](https://github.com/ylljonkr/resizer/relea
    (It warns because the app isn't from the Play Store, not because something is wrong.)
 5. Open **Resizer**.
 
-**Saving images:** tap Save. The Share sheet opens. Pick **Photos** / **Gallery** / **Files**
-(or "Save to device", depending on your phone) to keep the image.
+**Saving images:** tap Save. The image goes straight into your gallery, in an album called
+**Resizer** (folder `Pictures/Resizer`). It stays there even if you uninstall the app.
+On Android 9 or older, the first save asks for storage permission.
 
 **Updating:** install the new APK over the old one. Every build is signed with the same debug key
 (`android/app/resizer-debug.keystore`), so Android accepts it as an update.
@@ -93,11 +94,12 @@ npm run android:icons
 ```
 www/                 the app itself (shared by Android and Windows)
   index.html
-  native-save.js     Android saving (Filesystem + Share plugins)
+  native-save.js     Android saving (calls GallerySaverPlugin.java)
   vendor/capacitor.js  Capacitor core, lets plain <script> code use plugins
   fonts/             Bricolage Grotesque (SIL Open Font License, see OFL.txt)
 electron/main.js     Windows/desktop window
 android/             Android Studio project, made by Capacitor
+  app/src/main/java/com/ylljonkr/resizer/GallerySaverPlugin.java   saves to the gallery
 resources/           app icon source files
 capacitor.config.json
 ```
