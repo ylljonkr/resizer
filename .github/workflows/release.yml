@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # also fetch tags, so test builds can find the latest version
 
       - uses: actions/setup-node@v4
         with:
@@ -31,11 +33,17 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             V="${GITHUB_REF_NAME#v}"                    # v1.2.3 -> 1.2.3
+            IFS=. read -r MA MI PA <<< "${V%%-*}"
           else
-            V="0.0.0-test"                              # manual test build
+            # Manual test build: next patch after the latest tag (v1.0.0 -> 1.0.1-test),
+            # so it can install over the version already on your phone.
+            LAST=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo v0.0.0)
+            IFS=. read -r MA MI PA <<< "${LAST#v}"
+            PA=$(( ${PA:-0} + 1 ))
+            V="${MA}.${MI}.${PA}-test"
           fi
-          IFS=. read -r MA MI PA <<< "${V%%-*}"
           CODE=$(( ${MA:-0} * 10000 + ${MI:-0} * 100 + ${PA:-0} ))   # 1.2.3 -> 10203
+          if (( CODE < 1 )); then CODE=1; fi                       # Android needs a positive number
           echo "name=$V" >> "$GITHUB_OUTPUT"
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
 
