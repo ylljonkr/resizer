@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Resizer</string>
+    <string name="title_activity_main">Resizer</string>
+    <string name="package_name">com.ylljonkr.resizer</string>
+    <string name="custom_url_scheme">com.ylljonkr.resizer</string>
+</resources>

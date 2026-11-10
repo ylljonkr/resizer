@@ -1,0 +1,89 @@
+# Builds the Android APK and the Windows zip, then attaches both to a GitHub Release.
+# Runs when you push a tag that starts with "v", for example: git tag v1.0.0 && git push origin v1.0.0
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # needed to create the Release
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Work out version from tag
+        id: ver
+        run: |
+          V="${GITHUB_REF_NAME#v}"                      # v1.2.3 -> 1.2.3
+          IFS=. read -r MA MI PA <<< "${V%%-*}"
+          CODE=$(( ${MA:-0} * 10000 + ${MI:-0} * 100 + ${PA:-0} ))   # 1.2.3 -> 10203
+          echo "name=$V" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+
+      - run: npm ci
+
+      - name: Copy www/ into the Android project
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug -PappVersionName=${{ steps.ver.outputs.name }} -PappVersionCode=${{ steps.ver.outputs.code }}
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Resizer-${{ steps.ver.outputs.name }}-android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: Resizer-*.apk
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build Windows zip
+        shell: bash
+        run: npx electron-builder --win zip --x64 --publish never -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*.zip
+
+  release:
+    needs: [android, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true

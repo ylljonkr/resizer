@@ -1,0 +1,39 @@
+{
+  "name": "resizer",
+  "productName": "Resizer",
+  "version": "1.0.0",
+  "description": "Resize images offline. Android (Capacitor) and Windows (Electron) app.",
+  "author": "ylljonkr",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win zip --x64 --publish never",
+    "android:sync": "cap sync android",
+    "android:icons": "capacitor-assets generate --android --assetPath resources"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/share": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.ylljonkr.resizer",
+    "productName": "Resizer",
+    "directories": { "output": "dist" },
+    "files": ["electron/**", "www/**", "resources/icon.png", "package.json", "!node_modules/**"],
+    "win": {
+      "icon": "resources/icon.png",
+      "target": [{ "target": "zip", "arch": ["x64"] }],
+      "artifactName": "Resizer-${version}-win-x64.${ext}"
+    }
+  }
+}
